@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Lesson dashboard · Plot Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=Public+Sans:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .admin { max-width: 1400px; margin: 0 auto; padding: 20px 16px 60px; display: grid; gap: 16px; }
+  .admin-bar { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: var(--bg); padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .admin-bar .status { font-size: 0.86rem; color: var(--muted); flex: 1 1 260px; }
+  .admin-bar .status.err { color: var(--bad); }
+  .admin-bar .status.ok { color: var(--ok); }
+  .admin-cols { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 16px; align-items: start; }
+  @media (max-width: 860px) { .admin-cols { grid-template-columns: minmax(0, 1fr); } .tree { position: static !important; max-height: none !important; } }
+  .tree { position: sticky; top: 64px; max-height: calc(100vh - 80px); overflow: auto; display: grid; gap: 2px; font-size: 0.88rem; }
+  .tree button { display: flex; justify-content: space-between; gap: 8px; width: 100%; font: inherit; text-align: left; padding: 5px 10px; border-radius: 6px; border: 0; background: none; color: var(--fg); cursor: pointer; }
+  .tree button.ex { padding-left: 26px; font-size: 0.84rem; }
+  .tree button.lesson { font-weight: 600; margin-top: 6px; }
+  .tree button[aria-current=true] { background: var(--accent-soft); color: var(--accent); }
+  .tree .ch { color: var(--warn); font-size: 0.74rem; white-space: nowrap; }
+  .tree .bad { color: var(--bad); }
+  .form { display: grid; gap: 14px; }
+  .field { display: grid; gap: 6px; }
+  .field > label, .field > .lab { font-weight: 600; font-size: 0.88rem; display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+  .field > label small, .field > .lab small { font-weight: 400; color: var(--muted); }
+  .field input[type=text], .field select, .field textarea.html { font: 0.9rem/1.5 var(--font-body); padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); color: var(--fg); width: 100%; }
+  .field textarea.html { font-family: var(--font-mono); font-size: 0.82rem; min-height: 6em; field-sizing: content; resize: vertical; }
+  .field .preview { border: 1px dashed var(--line); border-radius: 8px; padding: 10px 12px; background: var(--surface); }
+  .field .warns { display: grid; gap: 2px; font-size: 0.8rem; color: var(--warn); }
+  .field .editor { height: 260px; min-height: 120px; }
+  .hint-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; align-items: start; }
+  .acts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .test-out { display: grid; gap: 10px; }
+  .test-out img { max-width: min(100%, 560px); background: #fff; border-radius: 6px; }
+  .problems { background: var(--bad-soft); color: var(--bad); border-radius: 8px; padding: 10px 14px; font-size: 0.86rem; }
+  .problems ul { margin: 4px 0 0; padding-left: 1.2em; }
+  .help { font-size: 0.88rem; color: var(--muted); display: grid; gap: 6px; max-width: 90ch; }
+  details.ref summary { cursor: pointer; color: var(--accent); font-size: 0.88rem; }
+  details.ref table { font-size: 0.82rem; border-collapse: collapse; margin-top: 8px; }
+  details.ref td { border-bottom: 1px solid var(--line); padding: 3px 12px 3px 0; vertical-align: top; }
+  .check-all ul { margin: 0; padding-left: 1.2em; font-size: 0.86rem; }
+</style>
+</head>
+<body>
+<main class="admin">
+  <section class="intro">
+    <h1>Lesson dashboard</h1>
+    <div class="help">
+      <p>Every lesson and exercise on Plot Lab is here. Pick one on the left and edit it. <b>Test this exercise</b> runs the answer and the starting code through the real checks, so you can see that the answer passes and the starting code does not. Press <b>Save</b> to write <span class="mono">data/lessons.json</span> (the old file is copied to <span class="mono">data/backups/</span> first). Press <b>Publish</b> to commit the saved lessons and push them to the live site.</p>
+      <p>Text boxes take HTML: <span class="mono">&lt;p&gt;</span>, <span class="mono">&lt;code&gt;</span>, <span class="mono">&lt;b&gt;</span>, <span class="mono">&lt;pre&gt;&lt;code&gt;</span> and links all work. Changing a lesson or exercise id resets the progress students have saved for it, so leave ids alone once students have started.</p>
+    </div>
+  </section>
+  <div class="admin-bar">
+    <button type="button" class="btn primary" id="save" disabled>Save</button>
+    <button type="button" class="btn" id="discard" disabled>Undo all</button>
+    <button type="button" class="btn" id="publish">Publish</button>
+    <button type="button" class="btn" id="test-all">Test every exercise</button>
+    <button type="button" class="btn ghost" id="download">Download</button>
+    <label class="btn ghost" for="upload">Upload</label><input type="file" id="upload" accept=".json,application/json" hidden>
+    <span class="status" id="status" aria-live="polite"></span>
+  </div>
+  <div id="problems"></div>
+  <div class="admin-cols">
+    <nav class="tree" id="tree" aria-label="Lessons"></nav>
+    <section class="card form" id="form"></section>
+  </div>
+</main>
+<script type="module" src="js/admin.js"></script>
+</body>
+</html>

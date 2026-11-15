@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson · Plot Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=Public+Sans:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="top"></header>
+<main class="page lesson">
+  <section class="intro">
+    <p class="eyebrow" id="lesson-num"></p>
+    <h1 id="lesson-title"></h1>
+    <details class="reading" id="reading">
+      <summary>Read this first</summary>
+      <div class="prose" id="lesson-intro"></div>
+    </details>
+  </section>
+
+  <nav class="ex-tabs" id="ex-tabs" role="tablist" aria-label="Exercises"></nav>
+  <p class="muted small" id="lesson-count"></p>
+
+  <div class="work">
+    <section class="task card">
+      <p class="eyebrow" id="ex-kind"></p>
+      <h2 id="ex-title"></h2>
+      <div class="prose" id="ex-prompt"></div>
+      <div class="target" id="target" hidden>
+        <p class="label">Make this figure</p>
+        <div id="target-img"></div>
+      </div>
+      <ol class="hints" id="hints"></ol>
+      <div class="task-acts">
+        <button type="button" class="btn" id="hint-btn">Hint</button>
+        <button type="button" class="btn ghost" id="sol-btn">Show an answer</button>
+      </div>
+      <div class="solution" id="solution" hidden></div>
+      <details class="files">
+        <summary>Data files in the working folder</summary>
+        <ul id="files"></ul>
+        <div class="peek" id="file-peek" hidden></div>
+      </details>
+    </section>
+
+    <section class="code-side">
+      <div class="code-bar">
+        <button type="button" class="btn primary" id="run">Run ▸</button>
+        <button type="button" class="btn ghost" id="reset">Start over</button>
+        <span class="muted small kbd-hint">Ctrl+Enter or ⌘+Enter runs. Esc leaves the editor.</span>
+      </div>
+      <p class="py-status" id="py-status" role="status" hidden></p>
+      <div id="editor"></div>
+      <div class="output card" id="output"></div>
+      <div class="results" id="results" aria-live="polite"></div>
+      <a class="btn primary next" id="next-ex" href="#" hidden></a>
+    </section>
+  </div>
+</main>
+<footer class="foot"><p>Your code runs in Python inside this browser tab (Pyodide). Nothing you type is sent anywhere, and your progress is saved in this browser only.</p></footer>
+<script type="module" src="js/lesson.js"></script>
+</body>
+</html>

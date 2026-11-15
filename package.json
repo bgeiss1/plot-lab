@@ -1,0 +1,11 @@
+{
+  "name": "plot-lab",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Plot Lab: matplotlib practice for MIP 662, with real Python (Pyodide) running in the browser.",
+  "type": "module",
+  "scripts": {
+    "serve": "node serve.mjs",
+    "test": "node tests/run.mjs"
+  }
+}

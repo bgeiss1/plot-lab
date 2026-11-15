@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plot Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=Public+Sans:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="top"></header>
+<main class="page">
+  <section class="intro">
+    <h1 id="title"></h1>
+    <div class="prose" id="intro"></div>
+  </section>
+  <section>
+    <ol class="lesson-list" id="lessons"></ol>
+  </section>
+  <section class="card">
+    <h2>The data files</h2>
+    <div class="prose" id="data-intro"></div>
+    <table class="grid small" id="data-table"></table>
+  </section>
+  <p class="small muted"><button type="button" class="linkish" id="clear">Clear my progress in this browser</button></p>
+</main>
+<footer class="foot"><p>Your code runs in Python inside this browser tab (Pyodide). Nothing you type is sent anywhere, and your progress is saved in this browser only.</p></footer>
+<script type="module">
+import { $, esc, loadLessons, header, progress, doneCount } from './js/site.js';
+const site = await loadLessons();
+header(site);
+$('title').textContent = site.title;
+$('intro').innerHTML = site.intro;
+$('data-intro').innerHTML = site.dataIntro;
+const draw = () => {
+  $('lessons').innerHTML = site.lessons.map((l, i) => {
+    const n = doneCount(l), all = l.exercises.length;
+    return `<li class="lesson-card${n === all && all ? ' done' : ''}"><a href="lesson.html?l=${esc(l.id)}">
+      <span class="num">${i + 1}</span>
+      <span class="body"><b>${esc(l.title)}</b><span class="muted">${l.summary}</span></span>
+      <span class="count">${n}/${all}</span></a></li>`;
+  }).join('');
+};
+draw();
+$('data-table').innerHTML = '<tr><th>File</th><th>What it is</th><th>Source</th></tr>' + site.files.map(f =>
+  `<tr><td class="mono">${esc(f.name)}</td><td>${f.about}</td><td><span class="tag ${f.real ? 'real' : 'example'}">${f.real ? 'real data' : 'example data'}</span></td></tr>`).join('');
+$('clear').onclick = () => { if (confirm('Forget every exercise you finished and the code you wrote, in this browser?')) { progress.clear(); draw(); header(site); } };
+</script>
+</body>
+</html>
