@@ -25,6 +25,7 @@ const HELPERS = [
   ['has_words(text, "a", "b")', 'True if every word is in the text, ignoring case.'],
   ['xvg(name) / csv_columns(name)', 'Read a data file the way the lessons do, for comparing.'],
   ['var("name")', 'A variable from the student\'s code (None if it does not exist).'],
+  ['printed', 'Everything the student\'s code printed, as one piece of text.'],
   ['saved("name.png")', 'Facts about a file the student saved: exists, width, height, dpi, format.']
 ];
 

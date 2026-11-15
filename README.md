@@ -2,7 +2,7 @@
 
 matplotlib practice for MIP 662. Students write real Python in the browser (Pyodide, bundled in
 `vendor/pyodide/`), see the figure their code draws, and get a list of checks that read the
-figure itself. Ten lessons, 27 exercises, all using course-style data (pLDDT, GROMACS energies
+figure itself. Eleven lessons, 31 exercises, all using course-style data (pLDDT, GROMACS energies
 and RMSD, iPTM / ipAE, PAE). Ungraded practice: progress lives in each student's browser.
 
 ## Run it locally

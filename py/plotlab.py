@@ -405,7 +405,7 @@ def run(code, check=None, dpi=90, render=True):
     if check and error is None:
         c = _Checks()
         env = dict(HELPERS)
-        env.update({'check': c.check, 'np': np, 'plt': plt, 'var': ns.get, 'student': ns})
+        env.update({'check': c.check, 'np': np, 'plt': plt, 'var': ns.get, 'student': ns, 'printed': out.getvalue()})
         try:
             exec(compile(check, '<check>', 'exec'), env)
         except Exception as e:

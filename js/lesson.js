@@ -94,7 +94,7 @@ function drawOutput(r) {
       <p class="mono">${esc(r.error.message)}</p>${r.error.help ? `<p>${esc(r.error.help)}</p>` : ''}</div>`;
   }
   if (r.figures.length) html += r.figures.map((f, i) => `<img class="fig" alt="Figure ${i + 1} from your code" src="data:image/png;base64,${f}">`).join('');
-  else if (!r.error) html += '<p class="placeholder">Your code ran, but it did not draw a figure.</p>';
+  else if (!r.error && !r.stdout.trim()) html += '<p class="placeholder">Your code ran, but it did not draw a figure.</p>';
   if (r.stdout.trim()) html += `<div class="stdout"><span class="label">Printed</span><pre>${esc(r.stdout)}</pre></div>`;
   $('output').innerHTML = html;
 }
