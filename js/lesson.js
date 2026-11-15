@@ -142,19 +142,6 @@ function solution() {
   $('use-sol').onclick = () => { editor.value = ex.solution; progress.set(exId(lesson, ex), { code: ex.solution }); };
 }
 
-function drawFiles() {
-  $('files').innerHTML = site.files.map(f => `<li><button type="button" class="linkish mono" data-f="${esc(f.name)}">${esc(f.name)}</button>
-    <span class="tag ${f.real ? 'real' : 'example'}">${f.real ? 'real data' : 'example data'}</span><span class="muted">${f.about}</span></li>`).join('');
-  $('files').addEventListener('click', async e => {
-    const b = e.target.closest('[data-f]');
-    if (!b) return;
-    const text = await (await fetch('data/files/' + b.dataset.f)).text();
-    const lines = text.split('\n');
-    $('file-peek').hidden = false;
-    $('file-peek').innerHTML = `<div class="sol-head"><b class="mono">${esc(b.dataset.f)}</b><span class="muted">first ${Math.min(30, lines.length)} of ${lines.length} lines</span></div><pre class="code">${esc(lines.slice(0, 30).join('\n'))}</pre>`;
-  });
-}
-
 async function boot() {
   site = await loadLessons();
   lesson = site.lessons.find(l => l.id === params.get('l')) || site.lessons[0];
@@ -172,7 +159,6 @@ async function boot() {
   });
   python = new Python(site.files.map(f => f.name), setStatus);
   python.ready.catch(err => setStatus('Python could not start: ' + err.message + ' Try reloading the page.'));
-  drawFiles();
   $('run').onclick = run;
   $('hint-btn').onclick = hint;
   $('sol-btn').onclick = solution;

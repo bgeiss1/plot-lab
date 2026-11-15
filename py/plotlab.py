@@ -337,7 +337,7 @@ FRIENDLY = [
     ("name 'plt' is not defined", 'Start with import matplotlib.pyplot as plt, so Python knows what plt means.'),
     ("name 'np' is not defined", 'Add import numpy as np at the top.'),
     ('x and y must have same first dimension', 'Your x and y have different lengths. Print len(x) and len(y) to see which one is off.'),
-    ('No such file or directory', 'That file name is not in the working folder. The data files are listed in the Files panel.'),
+    ('No such file or directory', 'Python cannot find a file with that name. Check the spelling against the file name in the task, including the ending (.csv or .xvg).'),
     ('could not convert string to float', 'Some rows are not numbers. A header row needs skiprows=1, and an .xvg file needs comments=["#", "@"].'),
     ('too many indices for array', 'The array has fewer columns than you asked for. Print data.shape to see its size.'),
     ("'float' object cannot be interpreted as an integer", 'Something here only takes whole numbers. For steps like 0.25, use np.arange instead of range.'),
