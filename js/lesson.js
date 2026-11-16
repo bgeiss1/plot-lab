@@ -44,7 +44,17 @@ function showExercise(e, push = true) {
   $('solution').innerHTML = '';
   $('results').innerHTML = '';
   $('output').innerHTML = '<p class="placeholder">Press Run to see your figure here.</p>';
-  editor.value = saved.code ?? ex.starter ?? '';
+  // Saved code remembers which starting code it began from. If the instructor has changed the
+  // starting code since, untouched code is swapped for the new version, and edited code is kept
+  // with a note offering the new version.
+  let code = saved.code ?? ex.starter ?? '';
+  let stale = false;
+  if (saved.code !== undefined && saved.base !== ex.starter) {
+    if (saved.code === saved.base) code = ex.starter;
+    else if (saved.code !== ex.starter) stale = true;
+  }
+  editor.value = code;
+  $('stale').hidden = !stale;
   drawQuestions();
   $('target').hidden = ex.kind !== 'recreate';
   if (ex.kind === 'recreate') drawTarget();
@@ -107,7 +117,7 @@ function drawResults(r) {
     return;
   }
   const all = r.results.length && r.results.every(x => x.ok);
-  progress.set(exId(lesson, ex), { codeOk: !!all, code: editor.value });
+  progress.set(exId(lesson, ex), { codeOk: !!all, code: editor.value, base: ex.starter });
   const waiting = all && !allAnswered();
   $('results').innerHTML = `<ul class="checks">${r.results.map(x =>
     `<li class="${x.ok ? 'ok' : 'no'}"><span class="mark" aria-label="${x.ok ? 'passed' : 'not yet'}">${x.ok ? '✓' : '✗'}</span>
@@ -204,7 +214,7 @@ function solution() {
     <pre class="code">${esc(ex.solution)}</pre>
     ${qs().length ? `<ul class="q-answers">${qs().map(q => `<li><span>${q.ask.replace(/<\/?p>/g, '')}</span> <b>${esc(answerText(q))}</b></li>`).join('')}</ul>` : ''}
     ${ex.explain ? `<p>${ex.explain}</p>` : ''}`;
-  $('use-sol').onclick = () => { editor.value = ex.solution; progress.set(exId(lesson, ex), { code: ex.solution }); };
+  $('use-sol').onclick = () => { editor.value = ex.solution; progress.set(exId(lesson, ex), { code: ex.solution, base: ex.starter }); };
 }
 
 async function boot() {
@@ -220,7 +230,7 @@ async function boot() {
   $('reading').addEventListener('toggle', () => progress.set(lesson.id, { read: true }));
   editor = new Editor($('editor'), {
     onRun: run,
-    onChange: v => progress.set(exId(lesson, ex), { code: v })
+    onChange: v => progress.set(exId(lesson, ex), { code: v, base: ex.starter })
   });
   python = new Python(site.files.map(f => f.name), setStatus);
   python.ready.catch(err => setStatus('Python could not start: ' + err.message + ' Try reloading the page.'));
@@ -230,7 +240,8 @@ async function boot() {
   $('reset').onclick = () => {
     if (editor.value !== ex.starter && !confirm('Put the starting code back? Your changes to this exercise are lost.')) return;
     editor.value = ex.starter;
-    progress.set(exId(lesson, ex), { code: ex.starter });
+    progress.set(exId(lesson, ex), { code: ex.starter, base: ex.starter });
+    $('stale').hidden = true;
   };
   $('ex-tabs').addEventListener('click', e => {
     const a = e.target.closest('[data-e]');
