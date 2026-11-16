@@ -156,3 +156,19 @@ pre.code { background: var(--code-bg); color: var(--code-fg); padding: 10px 12px
 .next { justify-self: start; }
 
 .foot { max-width: 1320px; margin: 0 auto; padding: 0 max(16px, 3vw) 40px; color: var(--muted); font-size: 0.82rem; }
+
+/* questions beside the task (answered in boxes, not in code) */
+.questions { display: grid; gap: 12px; border-top: 1px solid var(--line); padding-top: 12px; }
+.q { display: grid; gap: 6px; }
+.q-ask { font-weight: 600; }
+.q-ask p { margin: 0; }
+.q-opts { display: flex; flex-wrap: wrap; gap: 6px; }
+.q-opt { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; cursor: pointer; font-size: 0.9rem; background: var(--surface); }
+.q-opt:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+.q-opt input { margin: 0; accent-color: var(--accent); }
+.q-input { font: 0.92rem var(--font-mono); padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--fg); max-width: 22rem; width: 100%; }
+.q-res { font-size: 0.86rem; min-height: 1.2em; }
+.q-res.ok { color: var(--ok); font-weight: 600; }
+.q-res.no { color: var(--warn); }
+.q-res small { display: block; color: var(--muted); font-weight: 400; }
+.q-answers { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; font-size: 0.9rem; }

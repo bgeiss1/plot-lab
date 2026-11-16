@@ -1,5 +1,7 @@
 // Checks the shape of data/lessons.json. Used by the dashboard before saving, by serve.mjs
 // before writing the file, and by the tests, so a broken lessons file never reaches students.
+import { checkQuestion } from './questions.js';
+
 export const KINDS = ['fix', 'complete', 'recreate', 'write', 'explore'];
 const ID = /^[a-z0-9][a-z0-9-]*$/;
 
@@ -36,6 +38,10 @@ export function validateSite(site) {
       for (const k of ['title', 'prompt', 'starter', 'solution', 'check', 'explain']) if (typeof e[k] !== 'string') out.push(`${w}: "${k}" must be text.`);
       if (typeof e.check === 'string' && !/\bcheck\s*\(/.test(e.check)) out.push(`${w}: the check code never calls check(...), so nothing would be checked.`);
       if (!Array.isArray(e.hints) || e.hints.some(h => typeof h !== 'string')) out.push(`${w}: "hints" must be a list of text.`);
+      if (e.questions !== undefined) {
+        if (!Array.isArray(e.questions)) out.push(`${w}: "questions" must be a list.`);
+        else e.questions.forEach((q, qi) => out.push(...checkQuestion(q, `${w}, question ${qi + 1}`)));
+      }
     });
   });
   return out;

@@ -2,6 +2,7 @@
 // and the checks.
 import { $, esc, loadLessons, header, progress, exId, Python, doneCount } from './site.js';
 import { Editor } from './editor.js';
+import { isRight, answerText } from './questions.js';
 
 const params = new URLSearchParams(location.search);
 let site, lesson, ex, editor, python, hintsShown = 0;
@@ -44,6 +45,7 @@ function showExercise(e, push = true) {
   $('results').innerHTML = '';
   $('output').innerHTML = '<p class="placeholder">Press Run to see your figure here.</p>';
   editor.value = saved.code ?? ex.starter ?? '';
+  drawQuestions();
   $('target').hidden = ex.kind !== 'recreate';
   if (ex.kind === 'recreate') drawTarget();
   drawTabs();
@@ -105,22 +107,83 @@ function drawResults(r) {
     return;
   }
   const all = r.results.length && r.results.every(x => x.ok);
+  progress.set(exId(lesson, ex), { codeOk: !!all, code: editor.value });
+  const waiting = all && !allAnswered();
   $('results').innerHTML = `<ul class="checks">${r.results.map(x =>
     `<li class="${x.ok ? 'ok' : 'no'}"><span class="mark" aria-label="${x.ok ? 'passed' : 'not yet'}">${x.ok ? '✓' : '✗'}</span>
       <span>${esc(x.what)}${!x.ok && x.hint ? `<small>${esc(x.hint)}</small>` : ''}</span></li>`).join('')}</ul>
-    ${all ? `<p class="res-done">All ${r.results.length} checks pass. Nice work.</p>` : ''}`;
-  if (all) {
-    progress.set(exId(lesson, ex), { done: true, code: editor.value });
-    drawTabs();
-    header(site, lesson.id);
-    const i = lesson.exercises.indexOf(ex);
-    const nextEx = lesson.exercises[i + 1];
-    const li = site.lessons.indexOf(lesson);
-    const nextLesson = site.lessons[li + 1];
-    $('next-ex').hidden = false;
-    $('next-ex').innerHTML = nextEx ? `Next: ${esc(nextEx.title)} →` : nextLesson ? `Next lesson: ${esc(nextLesson.title)} →` : 'Back to all lessons';
-    $('next-ex').href = nextEx ? `?l=${lesson.id}&e=${nextEx.id}` : nextLesson ? `lesson.html?l=${nextLesson.id}` : 'index.html';
-  }
+    ${waiting ? `<p class="res-note">The code checks pass. Now answer the question${qs().length === 1 ? '' : 's'} beside the task to finish.</p>`
+      : all ? `<p class="res-done">All ${r.results.length} checks pass. Nice work.</p>` : ''}`;
+  if (all) finishIfDone();
+}
+
+// ------------------------------------------------------------ questions beside the code
+const qs = () => ex.questions || [];
+const answers = () => progress.get(exId(lesson, ex)).answers || {};
+const allAnswered = () => qs().every((q, i) => isRight(q, answers()[i]));
+
+function drawQuestions() {
+  const box = $('questions');
+  box.hidden = !qs().length;
+  if (!qs().length) { box.innerHTML = ''; return; }
+  const a = answers();
+  box.innerHTML = `<p class="label">Answer from what your code prints</p>` + qs().map((q, i) => {
+    const id = `q${i}`;
+    let input;
+    if (q.type === 'choice') {
+      input = `<div class="q-opts" role="radiogroup" aria-labelledby="${id}-ask">${q.options.map((o, j) =>
+        `<label class="q-opt"><input type="radio" name="${id}" value="${esc(o)}" ${a[i] === o ? 'checked' : ''}> <span>${esc(o)}</span></label>`).join('')}</div>`;
+    } else {
+      input = `<input class="q-input" type="text" id="${id}" inputmode="${q.type === 'number' ? 'decimal' : 'text'}" autocomplete="off" spellcheck="false" value="${esc(a[i] ?? '')}" aria-labelledby="${id}-ask">`;
+    }
+    return `<div class="q" data-q="${i}"><div class="q-ask" id="${id}-ask">${q.ask}</div>${input}<p class="q-res" aria-live="polite"></p></div>`;
+  }).join('') + `<div class="task-acts"><button type="button" class="btn primary" id="q-check">Check my answers</button></div>`;
+  $('q-check').onclick = checkQuestions;
+  box.querySelectorAll('.q-input').forEach(inp => inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); checkQuestions(); } }));
+  if (qs().some((q, i) => a[i] !== undefined && a[i] !== '')) markQuestions(false);
+}
+
+function readAnswers() {
+  const a = {};
+  qs().forEach((q, i) => {
+    const el = q.type === 'choice' ? $('questions').querySelector(`input[name="q${i}"]:checked`) : $(`q${i}`);
+    a[i] = el ? el.value : '';
+  });
+  return a;
+}
+
+function markQuestions(showHints = true) {
+  const a = answers();
+  qs().forEach((q, i) => {
+    const res = $('questions').querySelector(`[data-q="${i}"] .q-res`);
+    const ok = isRight(q, a[i]);
+    const empty = a[i] === undefined || String(a[i]).trim() === '';
+    res.className = 'q-res ' + (ok ? 'ok' : empty ? '' : 'no');
+    res.innerHTML = ok ? '✓ Right.' : empty ? (showHints ? 'Not answered yet.' : '') : `✗ Not quite.${showHints && q.hint ? ` <small>${esc(q.hint)}</small>` : ''}`;
+  });
+}
+
+function checkQuestions() {
+  progress.set(exId(lesson, ex), { answers: readAnswers() });
+  markQuestions(true);
+  finishIfDone();
+}
+
+// The exercise is done when the code checks pass (on the last Run) and every question is right.
+function finishIfDone() {
+  const p = progress.get(exId(lesson, ex));
+  const codeOk = p.codeOk || !(ex.check || '').trim();
+  if (!codeOk || !allAnswered()) return false;
+  if (!p.done) progress.set(exId(lesson, ex), { done: true });
+  drawTabs();
+  header(site, lesson.id);
+  const i = lesson.exercises.indexOf(ex);
+  const nextEx = lesson.exercises[i + 1];
+  const nextLesson = site.lessons[site.lessons.indexOf(lesson) + 1];
+  $('next-ex').hidden = false;
+  $('next-ex').innerHTML = nextEx ? `Next: ${esc(nextEx.title)} →` : nextLesson ? `Next lesson: ${esc(nextLesson.title)} →` : 'Back to all lessons';
+  $('next-ex').href = nextEx ? `?l=${lesson.id}&e=${nextEx.id}` : nextLesson ? `lesson.html?l=${nextLesson.id}` : 'index.html';
+  return true;
 }
 
 function hint() {
@@ -138,7 +201,9 @@ function solution() {
   if (!hintsShown && !confirm('Try a hint first? Press OK to see the full answer anyway.')) return;
   box.hidden = false;
   box.innerHTML = `<div class="sol-head"><b>One answer</b><button type="button" class="btn small" id="use-sol">Put it in the editor</button></div>
-    <pre class="code">${esc(ex.solution)}</pre>${ex.explain ? `<p>${ex.explain}</p>` : ''}`;
+    <pre class="code">${esc(ex.solution)}</pre>
+    ${qs().length ? `<ul class="q-answers">${qs().map(q => `<li><span>${q.ask.replace(/<\/?p>/g, '')}</span> <b>${esc(answerText(q))}</b></li>`).join('')}</ul>` : ''}
+    ${ex.explain ? `<p>${ex.explain}</p>` : ''}`;
   $('use-sol').onclick = () => { editor.value = ex.solution; progress.set(exId(lesson, ex), { code: ex.solution }); };
 }
 

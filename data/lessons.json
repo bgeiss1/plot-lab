@@ -101,43 +101,109 @@
      "id": "peek-csv",
      "title": "Print the top of a file",
      "kind": "complete",
-     "prompt": "<p>Print the first 5 lines of <code>plddt.csv</code>. Then, from what you see, fill in the two variables: <code>has_header</code> (<code>True</code> or <code>False</code>) and <code>separator</code> (the character between the columns, as text).</p>",
-     "starter": "with open(\"plddt.csv\") as f:\n    lines = f.readlines()\n\n# print the first 5 lines here\n\nhas_header = None   # True or False?\nseparator = None    # which character separates the columns? for example \"\\t\" or \" \"\n",
-     "solution": "with open(\"plddt.csv\") as f:\n    lines = f.readlines()\n\nfor line in lines[:5]:\n    print(line, end=\"\")\n\nhas_header = True\nseparator = \",\"\n",
-     "check": "check(\"The first lines of plddt.csv are printed\", \"residue,plddt\" in printed and \"17,\" in printed, \"Loop over lines[:5] and print each one.\")\ncheck(\"Only the top of the file is printed\", printed.count(\"\\n\") <= 12, \"Print a few lines, not the whole file. lines[:5] keeps the first five.\")\ncheck(\"has_header is right\", var(\"has_header\") is True, \"Is the first line words or numbers?\")\ncheck(\"separator is right\", var(\"separator\") == \",\", \"Look at what sits between the two numbers on each line.\")\n",
+     "prompt": "<p>Print the first 5 lines of <code>plddt.csv</code>, then answer the two questions from what your code prints.</p>",
+     "starter": "with open(\"plddt.csv\") as f:\n    lines = f.readlines()\n\n# print the first 5 lines here\n",
+     "solution": "with open(\"plddt.csv\") as f:\n    lines = f.readlines()\n\nfor line in lines[:5]:\n    print(line, end=\"\")\n",
+     "check": "check(\"The first lines of plddt.csv are printed\", \"residue,plddt\" in printed and \"17,\" in printed, \"Loop over lines[:5] and print each one.\")\ncheck(\"Only the top of the file is printed\", printed.count(\"\\n\") <= 12, \"Print a few lines, not the whole file. lines[:5] keeps the first five.\")\n",
      "hints": [
       "<code>for line in lines[:5]:</code> then <code>print(line, end=\"\")</code> inside the loop.",
       "The first line is <code>residue,plddt</code>. Words, not numbers, so it is a header."
      ],
-     "explain": "This is why lesson 1 loads the file with <code>skiprows=1</code> (skip the header) and <code>delimiter=\",\"</code> (columns split by commas)."
+     "explain": "This is why lesson 1 loads the file with <code>skiprows=1</code> (skip the header) and <code>delimiter=\",\"</code> (columns split by commas).",
+     "questions": [
+      {
+       "ask": "<p>Does <code>plddt.csv</code> have a header line?</p>",
+       "type": "choice",
+       "options": [
+        "Yes",
+        "No"
+       ],
+       "answer": "Yes",
+       "hint": "Is the first line words or numbers?"
+      },
+      {
+       "ask": "<p>What separates the columns?</p>",
+       "type": "choice",
+       "options": [
+        "A comma",
+        "A tab",
+        "Spaces",
+        "A semicolon"
+       ],
+       "answer": "A comma",
+       "hint": "Look at what sits between the two numbers on each line."
+      }
+     ]
     },
     {
      "id": "xvg-legends",
      "title": "Find the column names in an .xvg file",
      "kind": "write",
-     "prompt": "<p><code>md_energy.xvg</code> has 28 lines of header before the numbers start. Print only the lines that start with <code>@</code>. Then use what they say to set two variables: <code>pressure_column</code>, the numpy column number that holds the pressure, and <code>x_label</code>, the x axis label written in the file (as text).</p>",
+     "prompt": "<p><code>md_energy.xvg</code> has 28 lines of header before the numbers start. Print only the lines that start with <code>@</code>, then use what they say to answer the two questions.</p>",
      "starter": "with open(\"md_energy.xvg\") as f:\n    lines = f.readlines()\n",
-     "solution": "with open(\"md_energy.xvg\") as f:\n    lines = f.readlines()\n\nfor line in lines:\n    if line.startswith(\"@\"):\n        print(line, end=\"\")\n\npressure_column = 3   # @ s2 legend \"Pressure\", and s0 is column 1\nx_label = \"Time (ps)\"\n",
-     "check": "check(\"The @ lines are printed\", '@ s2 legend \"Pressure\"' in printed and '@    xaxis  label' in printed, 'Print every line that starts with \"@\".')\ncheck(\"Only the @ lines are printed\", \"GROMACS - gmx energy\" not in printed and \"-484483\" not in printed, 'Use if line.startswith(\"@\"): so the # lines and the numbers are left out.')\ncheck(\"pressure_column is right\", var(\"pressure_column\") == 3, \"Pressure is s2. Column 0 is time, so s0 is column 1, s1 is column 2 and s2 is column 3.\")\ncheck(\"x_label matches the file\", has_words(var(\"x_label\") or \"\", \"time\", \"ps\"), 'Copy the text in quotes from the \"@    xaxis  label\" line.')\n",
+     "solution": "with open(\"md_energy.xvg\") as f:\n    lines = f.readlines()\n\nfor line in lines:\n    if line.startswith(\"@\"):\n        print(line, end=\"\")\n",
+     "check": "check(\"The @ lines are printed\", '@ s2 legend \"Pressure\"' in printed and '@    xaxis  label' in printed, 'Print every line that starts with \"@\".')\ncheck(\"Only the @ lines are printed\", \"GROMACS - gmx energy\" not in printed and \"-484483\" not in printed, 'Use if line.startswith(\"@\"): so the # lines and the numbers are left out.')\n",
      "hints": [
       "Inside a loop over <code>lines</code>, <code>if line.startswith(\"@\"):</code> picks the label lines.",
-      "Count carefully: time is column 0, then <code>s0</code> is column 1."
+      "For the column: time is column 0, then <code>s0</code> is column 1."
      ],
-     "explain": "Grace numbers its data sets from s0, while numpy numbers columns from 0 including the x axis. The offset of one catches people out, so it is worth checking with a plot every time."
+     "explain": "Grace numbers its data sets from s0, while numpy numbers columns from 0 including the x axis. The offset of one catches people out, so it is worth checking with a plot every time.",
+     "questions": [
+      {
+       "ask": "<p>Which numpy column holds the pressure? (Time is column 0.)</p>",
+       "type": "number",
+       "answer": 3,
+       "hint": "Pressure is s2. Column 0 is time, so s0 is column 1, s1 is column 2 and s2 is column 3."
+      },
+      {
+       "ask": "<p>What does the file give as the x axis label?</p>",
+       "type": "text",
+       "answer": [
+        "Time (ps)"
+       ],
+       "hint": "Copy the text in quotes from the \"@    xaxis  label\" line."
+      }
+     ]
     },
     {
      "id": "shape-and-names",
      "title": "Check what numpy loaded",
      "kind": "complete",
-     "prompt": "<p>Load two files and check them. Print the shape of <code>md_rmsf.xvg</code> after loading it, and print the column names of <code>designs.csv</code>. Then set <code>n_residues</code> to the number of rows in the RMSF data and <code>n_designs</code> to the number of designs, using the numbers your code printed.</p>",
-     "starter": "import numpy as np\n\nrmsf = np.loadtxt(\"md_rmsf.xvg\", comments=[\"#\", \"@\"])\nd = np.genfromtxt(\"designs.csv\", delimiter=\",\", names=True, dtype=None, encoding=\"utf-8\")\n\n# print rmsf.shape, d.dtype.names and len(d)\n\nn_residues = None\nn_designs = None\n",
-     "solution": "import numpy as np\n\nrmsf = np.loadtxt(\"md_rmsf.xvg\", comments=[\"#\", \"@\"])\nd = np.genfromtxt(\"designs.csv\", delimiter=\",\", names=True, dtype=None, encoding=\"utf-8\")\n\nprint(rmsf.shape)\nprint(d.dtype.names)\nprint(len(d))\n\nn_residues = 23\nn_designs = 96\n",
-     "check": "check(\"The RMSF shape is printed\", \"(23, 2)\" in printed, \"print(rmsf.shape)\")\ncheck(\"The designs.csv column names are printed\", \"'iptm'\" in printed and \"'run'\" in printed, \"print(d.dtype.names)\")\ncheck(\"n_residues is right\", var(\"n_residues\") == 23, \"It is the first number in rmsf.shape.\")\ncheck(\"n_designs is right\", var(\"n_designs\") == 96, \"print(len(d)) counts the rows.\")\n",
+     "prompt": "<p>Load two files and check them. Print the shape of <code>md_rmsf.xvg</code> after loading it, print the column names of <code>designs.csv</code>, and print how many rows <code>designs.csv</code> has. Then answer the questions from what your code prints.</p>",
+     "starter": "import numpy as np\n\nrmsf = np.loadtxt(\"md_rmsf.xvg\", comments=[\"#\", \"@\"])\nd = np.genfromtxt(\"designs.csv\", delimiter=\",\", names=True, dtype=None, encoding=\"utf-8\")\n\n# print rmsf.shape, d.dtype.names and len(d)\n",
+     "solution": "import numpy as np\n\nrmsf = np.loadtxt(\"md_rmsf.xvg\", comments=[\"#\", \"@\"])\nd = np.genfromtxt(\"designs.csv\", delimiter=\",\", names=True, dtype=None, encoding=\"utf-8\")\n\nprint(rmsf.shape)\nprint(d.dtype.names)\nprint(len(d))\n",
+     "check": "check(\"The RMSF shape is printed\", \"(23, 2)\" in printed, \"print(rmsf.shape)\")\ncheck(\"The designs.csv column names are printed\", \"'iptm'\" in printed and \"'run'\" in printed, \"print(d.dtype.names)\")\ncheck(\"The number of designs is printed\", \"96\" in printed, \"print(len(d))\")\n",
      "hints": [
       "<code>print(rmsf.shape)</code> prints (rows, columns).",
       "<code>d.dtype.names</code> holds the names from the header row, and <code>len(d)</code> counts the rows."
      ],
-     "explain": "Magainin 2 has 23 residues, so 23 rows is what we expect. When a shape surprises you, stop and find out why before plotting."
+     "explain": "Magainin 2 has 23 residues, so 23 rows is what we expect. When a shape surprises you, stop and find out why before plotting.",
+     "questions": [
+      {
+       "ask": "<p>How many rows (residues) does <code>md_rmsf.xvg</code> have?</p>",
+       "type": "number",
+       "answer": 23,
+       "hint": "It is the first number in rmsf.shape."
+      },
+      {
+       "ask": "<p>How many designs are in <code>designs.csv</code>?</p>",
+       "type": "number",
+       "answer": 96,
+       "hint": "len(d) counts the rows."
+      },
+      {
+       "ask": "<p>Which of these is <b>not</b> a column in <code>designs.csv</code>?</p>",
+       "type": "choice",
+       "options": [
+        "iptm",
+        "ipae",
+        "plddt",
+        "rmsd"
+       ],
+       "answer": "plddt",
+       "hint": "Compare each option with the names d.dtype.names printed."
+      }
+     ]
     },
     {
      "id": "label-from-file",

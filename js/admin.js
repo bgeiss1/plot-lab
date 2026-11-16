@@ -4,6 +4,7 @@
 import { $, esc, Python } from './site.js';
 import { Editor } from './editor.js';
 import { validateSite, KINDS } from './validate.js';
+import { QTYPES } from './questions.js';
 
 const BANNED = /\b(importantly|notably|interestingly|indeed|crucially|simply put|of course|moreover|furthermore|hence|consequently|nevertheless|remarkable|exciting|cutting-edge|transformative|groundbreaking|novel|unprecedented)\b/i;
 const KIND_NAMES = { fix: 'Fix the bug', complete: 'Finish the code', recreate: 'Recreate the figure', write: 'Write it yourself', explore: 'Try it' };
@@ -130,6 +131,18 @@ function drawForm() {
     <div class="field"><div class="lab">Hints <small>shown one at a time, in this order</small></div>
       ${o.hints.map((h, i) => `<div class="hint-row"><textarea class="html" data-hint="${i}" aria-label="Hint ${i + 1}">${esc(h)}</textarea><button type="button" class="btn small" data-act="hint-del" data-i="${i}">Remove</button></div>`).join('')}
       <div><button type="button" class="btn small" data-act="hint-add">+ Add a hint</button></div></div>
+    <div class="field"><div class="lab">Questions <small>answered in boxes beside the task, not in the code. The exercise is done when the code checks pass and every question is right.</small></div>
+      ${(o.questions || []).map((q, i) => `<div class="card q-edit" data-qi="${i}">
+        <div class="sol-head"><b>Question ${i + 1}</b><button type="button" class="btn small" data-act="q-del" data-i="${i}">Remove</button></div>
+        <label class="small">Question <textarea class="html" data-qf="ask" aria-label="Question ${i + 1}">${esc(q.ask)}</textarea></label>
+        <label class="small">Kind <select data-qf="type">${QTYPES.map(t => `<option value="${t}" ${t === q.type ? 'selected' : ''}>${{ choice: 'Pick one option', number: 'Type a number', text: 'Type a word or phrase' }[t]}</option>`).join('')}</select></label>
+        ${q.type === 'choice' ? `<label class="small">Options, one per line <textarea class="html" data-qf="options">${esc((q.options || []).join('\n'))}</textarea></label>` : ''}
+        <label class="small">${q.type === 'text' ? 'Accepted answers, one per line (case, spaces and quotes are ignored)' : q.type === 'choice' ? 'Right answer (must match an option exactly)' : 'Right answer'}
+          ${q.type === 'text' ? `<textarea class="html" data-qf="answer">${esc((Array.isArray(q.answer) ? q.answer : [q.answer]).join('\n'))}</textarea>` : `<input type="text" data-qf="answer" value="${esc(q.answer)}">`}</label>
+        ${q.type === 'number' ? `<label class="small">Allowed difference (0 for exact) <input type="text" data-qf="tol" value="${esc(q.tol ?? 0)}"></label>` : ''}
+        <label class="small">Hint when wrong <input type="text" data-qf="hint" value="${esc(q.hint || '')}"></label>
+      </div>`).join('')}
+      <div><button type="button" class="btn small" data-act="q-add">+ Add a question</button></div></div>
     ${textField('explain', 'After the answer', o, { html: true, note: 'optional, shown under the answer' })}
     <div class="acts"><button type="button" class="btn primary" data-act="test">Test this exercise</button></div>
     <div class="test-out" id="test-out"></div>`;

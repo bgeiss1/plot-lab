@@ -15,6 +15,7 @@ import { createServer } from 'node:http';
 import { validateSite } from '../js/validate.js';
 import { saveLessons, handler } from '../serve.mjs';
 import { highlight } from '../js/editor.js';
+import { isRight } from '../js/questions.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 let pass = 0, fail = 0;
@@ -58,6 +59,21 @@ for (const [k, v] of texts) {
   ok(!/;/.test(p), `${k}: no semicolons`);
   ok(!BANNED.test(p), `${k}: no banned words (${(p.match(BANNED) || [])[0]})`);
 }
+
+// ---------------------------------------------------------------- questions beside the task
+ok(isRight({ type: 'choice', options: ['Yes', 'No'], answer: 'Yes' }, 'Yes'), 'a right choice is right');
+ok(!isRight({ type: 'choice', options: ['Yes', 'No'], answer: 'Yes' }, 'No'), 'a wrong choice is wrong');
+ok(isRight({ type: 'number', answer: 3 }, ' 3 '), 'a number answer ignores spaces');
+ok(!isRight({ type: 'number', answer: 3 }, '2'), 'a wrong number is wrong');
+ok(isRight({ type: 'number', answer: 0.5, tol: 0.01 }, '0.505'), 'a number within the allowed difference is right');
+ok(isRight({ type: 'text', answer: ['Time (ps)'] }, '"time(ps)"'), 'text answers ignore case, spaces and quotes');
+ok(!isRight({ type: 'text', answer: ['Time (ps)'] }, ''), 'an empty answer is never right');
+const withQ = site.lessons.flatMap(l => l.exercises).filter(e => e.questions);
+ok(withQ.length >= 3, 'the look-first exercises ask their questions in boxes');
+for (const e of withQ) for (const q of e.questions) ok(isRight(q, q.type === 'text' ? q.answer[0] : String(q.answer)), `${e.id}: the stored answer counts as right`);
+for (const l of site.lessons) for (const e of l.exercises) ok(!/^\s*(has_header|separator|pressure_column|x_label|n_residues|n_designs)\s*=/m.test(e.solution), `${e.id}: no question is answered by setting a variable in code`);
+const badq = structuredClone(site); badq.lessons[1].exercises[0].questions[0].answer = 'Maybe';
+ok(validateSite(badq).some(p => p.includes('must be one of them')), 'a choice answer that is not an option is refused');
 
 // ---------------------------------------------------------------- the editor's colouring
 ok(highlight('import numpy as np').includes('<span class="t-kw">import</span>'), 'keywords are coloured');

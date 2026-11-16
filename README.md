@@ -41,6 +41,10 @@ and others, all listed in the dashboard) and calls `check(what, condition, hint)
 it wants to confirm. Because the checks read the figure and not the code, any correct way of
 writing the code passes (`plt.` or the Axes style, any colour spelling, and so on).
 
+An exercise can also have **questions** (pick one, type a number, or type a word), answered in
+boxes beside the task rather than in the code. The exercise counts as done when the code checks
+pass and every question is right. They are edited in the dashboard under each exercise.
+
 ## Tests
 
 ```bash
