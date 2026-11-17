@@ -8,12 +8,40 @@ export async function loadLessons() {
   return r.json();
 }
 
+// CSU brand marks. The official artwork (reversed, all white, for the green header and footer)
+// comes from brand.colostate.edu/signature and goes in img/ under these names. Until the files
+// are there, the page shows the university name as plain text in the same place.
+const SIGNATURE = 'img/csu-signature-reversed.svg';
+const WORDMARK = 'img/csu-wordmark-reversed.svg';
+const mark = (src, cls = '') => `<img class="${cls}" src="${src}" alt="Colorado State University" onerror="this.outerHTML='<span class=&quot;sig-text&quot;>Colorado State University</span>'">`;
+
 export function header(site, current = '') {
   const el = document.querySelector('header.top');
   if (!el) return;
-  el.innerHTML = `<a class="brand" href="index.html"><span class="brand-name">${esc(site.title)}</span><span class="brand-sub">${esc(site.subtitle)}</span></a>
-    <nav class="tools" aria-label="Lessons">${site.lessons.map((l, i) =>
-    `<a class="tool${l.id === current ? ' on' : ''}${done(l) ? ' done' : ''}" href="lesson.html?l=${esc(l.id)}" title="${esc(l.title)}">${i + 1}</a>`).join('')}</nav>`;
+  el.innerHTML = `<div class="top-inner">
+      <a class="signature" href="https://www.colostate.edu/">${mark(SIGNATURE)}</a>
+      <span class="divider" aria-hidden="true"></span>
+      <a class="identifier" href="index.html"><span class="brand-name">${esc(site.title)}</span><span class="brand-sub">${esc(site.subtitle)}</span></a>
+    </div>`;
+  let bar = document.querySelector('nav.lessonbar');
+  if (!bar) {
+    bar = document.createElement('nav');
+    bar.className = 'lessonbar';
+    bar.setAttribute('aria-label', 'Lessons');
+    el.after(bar);
+  }
+  bar.innerHTML = `<div class="lessonbar-inner"><span class="label">Lessons</span><span class="tools">${site.lessons.map((l, i) =>
+    `<a class="tool${l.id === current ? ' on' : ''}${done(l) ? ' done' : ''}" href="lesson.html?l=${esc(l.id)}" title="${esc(l.title)}"${l.id === current ? ' aria-current="page"' : ''}>${i + 1}</a>`).join('')}</span></div>`;
+  footer();
+}
+
+// The CSU Green footer with the university wordmark, which the web guidelines require on every page.
+export function footer() {
+  const f = document.querySelector('footer.foot');
+  if (!f || f.dataset.done) return;
+  const note = f.innerHTML;
+  f.innerHTML = `<div class="foot-inner"><a class="wordmark" href="https://www.colostate.edu/">${mark(WORDMARK)}</a><div class="foot-note">${note}</div></div>`;
+  f.dataset.done = '1';
 }
 
 // ------------------------------------------------------------ progress (this browser only)

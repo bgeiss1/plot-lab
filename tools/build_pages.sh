@@ -9,6 +9,7 @@ rm -rf "$out" && mkdir -p "$out/data" "$out/js" "$out/py"
 
 for f in *.html; do [ "$f" = admin.html ] || cp "$f" "$out/"; done
 cp -R css vendor "$out/"
+[ -d img ] && mkdir -p "$out/img" && find img -maxdepth 1 -type f ! -name "*.md" -exec cp {} "$out/img/" \;
 for f in js/*.js; do [ "$f" = js/admin.js ] || cp "$f" "$out/js/"; done
 cp py/plotlab.py "$out/py/"
 cp data/lessons.json "$out/data/"

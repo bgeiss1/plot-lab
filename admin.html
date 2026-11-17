@@ -6,13 +6,13 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Lesson dashboard · Plot Lab</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=Public+Sans:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..700&family=JetBrains+Mono:wght@400;600&display=swap">
 <link rel="stylesheet" href="css/style.css">
 <style>
   .admin { max-width: 1400px; margin: 0 auto; padding: 20px 16px 60px; display: grid; gap: 16px; }
   .admin-bar { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: var(--bg); padding: 10px 0; border-bottom: 1px solid var(--line); }
   .admin-bar .status { font-size: 0.86rem; color: var(--muted); flex: 1 1 260px; }
-  .admin-bar .status.err { color: var(--bad); }
+  .admin-bar .status.err { color: var(--purple); font-weight: 600; }
   .admin-bar .status.ok { color: var(--ok); }
   .admin-cols { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 16px; align-items: start; }
   @media (max-width: 860px) { .admin-cols { grid-template-columns: minmax(0, 1fr); } .tree { position: static !important; max-height: none !important; } }
@@ -20,9 +20,9 @@
   .tree button { display: flex; justify-content: space-between; gap: 8px; width: 100%; font: inherit; text-align: left; padding: 5px 10px; border-radius: 6px; border: 0; background: none; color: var(--fg); cursor: pointer; }
   .tree button.ex { padding-left: 26px; font-size: 0.84rem; }
   .tree button.lesson { font-weight: 600; margin-top: 6px; }
-  .tree button[aria-current=true] { background: var(--accent-soft); color: var(--accent); }
+  .tree button[aria-current=true] { background: var(--tan); color: var(--csu-green); font-weight: 600; }
   .tree .ch { color: var(--warn); font-size: 0.74rem; white-space: nowrap; }
-  .tree .bad { color: var(--bad); }
+  .tree .bad { color: var(--purple); }
   .form { display: grid; gap: 14px; }
   .field { display: grid; gap: 6px; }
   .field > label, .field > .lab { font-weight: 600; font-size: 0.88rem; display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
@@ -36,7 +36,7 @@
   .acts { display: flex; flex-wrap: wrap; gap: 8px; }
   .test-out { display: grid; gap: 10px; }
   .test-out img { max-width: min(100%, 560px); background: #fff; border-radius: 6px; }
-  .problems { background: var(--bad-soft); color: var(--bad); border-radius: 8px; padding: 10px 14px; font-size: 0.86rem; }
+  .problems { background: #fff; color: #000; border: 1px solid var(--gray); border-left: 6px solid var(--red); border-radius: 8px; padding: 10px 14px; font-size: 0.86rem; }
   .problems ul { margin: 4px 0 0; padding-left: 1.2em; }
   .help { font-size: 0.88rem; color: var(--muted); display: grid; gap: 6px; max-width: 90ch; }
   details.ref summary { cursor: pointer; color: var(--accent); font-size: 0.88rem; }
